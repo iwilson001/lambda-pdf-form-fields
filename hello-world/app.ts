@@ -26,7 +26,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
         const formFields = pdfDoc.getForm().getFields();
 
-        const formFieldsList = formFields.map((field) => field.getName()).join(',');
+        const formFieldsList = formFields.map((field) => encodeURIComponent(field.getName())).join(',');
 
         return {
             statusCode: 200,
