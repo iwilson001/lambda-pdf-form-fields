@@ -13,13 +13,18 @@ import { PDFDocument } from 'pdf-lib';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        if (!event?.body) throw new Error('No data was passed in the request body.');
-
+        if (!event?.body) {
+            console.error('No data was passed in the request body.');
+            throw new Error('No data was passed in the request body.');
+        }
         const bodyObj = JSON.parse(event.body);
 
         const { pdfTemplate } = bodyObj;
 
-        if (!pdfTemplate) throw new Error('No pdfTemplate was passed in the request body.');
+        if (typeof pdfTemplate != 'string') {
+            console.error('No pdfTemplate was passed in the request body.');
+            throw new Error('No pdfTemplate was passed in the request body.');
+        }
 
         const pdfBuffer = Buffer.from(pdfTemplate, 'base64');
         const pdfDoc = await PDFDocument.load(pdfBuffer);
@@ -31,14 +36,15 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         return {
             statusCode: 200,
             body: JSON.stringify({
+                message: 'Successfully Generated PDF Form Field List',
                 formFieldsList,
             }),
         };
     } catch (err) {
-        console.log(err);
         return {
             statusCode: 500,
             body: JSON.stringify({
+                message: err instanceof Error ? err.message : 'An unknown error occurred',
                 err,
             }),
         };
